@@ -14,16 +14,28 @@ return_type DiffDriveArduino::configure(const hardware_interface::HardwareInfo &
 
   RCLCPP_INFO(logger_, "Configuring...");
 
-  time_ = std::chrono::system_clock::now();
+  time_ = chrono::system_clock::now();
 
   // Get the wheel names
   wheel_name_.push_back(info_.hardware_parameters["left_wheel_name"]);
   wheel_name_.push_back(info_.hardware_parameters["right_wheel_name"]);
 
+  // Config
+  device_name_  = info_.hardware_parameters["device"];
+  baudrate_     = stoi(info_.hardware_parameters["baud_rate"]);
+  timeout_      = stoi(info_.hardware_parameters["timeout"]);
+  update_rate_  = stoi(info_.hardware_parameters["loop_rate"]);
+  encoder_rate_ = stoi(info_.hardware_parameters["enc_counts_per_rev"]);
+
   // DEBUG
   for (auto itr : wheel_name_){
     RCLCPP_INFO(logger_, itr);
   }
+  RCLCPP_INFO(logger_, device_name_);
+  RCLCPP_INFO(logger_, to_string(baudrate_));
+  RCLCPP_INFO(logger_, to_string(timeout_));
+  RCLCPP_INFO(logger_, to_string(update_rate_));
+  RCLCPP_INFO(logger_, to_string(encoder_rate_));
 
   // // OLD
   // cfg_.left_wheel_name = info_.hardware_parameters["left_wheel_name"];

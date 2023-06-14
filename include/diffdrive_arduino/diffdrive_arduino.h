@@ -47,8 +47,15 @@ public:
 
 private:
 
-  vector<string> wheel_name_;
-  vector<string> steering_name_;
+  vector<string>          wheel_name_;
+  vector<string>          steering_name_;
+
+  string                  device_name_;     // Serial port
+  uint32_t                baudrate_;        // Baudrate
+  uint16_t                timeout_;         // Serial timeout
+  uint16_t                update_rate_;     // Write rate
+  uint16_t                encoder_rate_;    // Read rate
+
 
   Config cfg_;
   ArduinoComms arduino_;
