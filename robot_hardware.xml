@@ -1,9 +1,9 @@
-<library path="diffdrive_arduino">
-  <class name="diffdrive_arduino/DiffDriveArduino"
-         type="DiffDriveArduino"
+<library path="diff_hardware_interface">
+  <class name="diff_hardware_interface/DiffHardwareInterface"
+         type="DiffHardwareInterface"
          base_class_type="hardware_interface::SystemInterface">
     <description>
-      Hardware Interface for Differential Drive Arduino controller.
+      Hardware Interface for Differential Drive dynamixel controller.
     </description>
   </class>
 </library>

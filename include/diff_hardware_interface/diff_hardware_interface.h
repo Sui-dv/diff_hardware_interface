@@ -1,5 +1,5 @@
-#ifndef DIFFDRIVE_ARDUINO_REAL_ROBOT_H
-#define DIFFDRIVE_ARDUINO_REAL_ROBOT_H
+#ifndef DIFF_HARDWARE_INTERFACE_H
+#define DIFF_HARDWARE_INTERFACE_H
 
 #include <string>
 
@@ -18,12 +18,12 @@
 using hardware_interface::return_type;
 using namespace std;
 
-class DiffDriveArduino : public hardware_interface::BaseInterface<hardware_interface::SystemInterface>
+class DiffHardwareInterface : public hardware_interface::BaseInterface<hardware_interface::SystemInterface>
 {
 
 
 public:
-  DiffDriveArduino();
+  DiffHardwareInterface();
 
   return_type configure(const hardware_interface::HardwareInfo & info) override;
 
@@ -64,4 +64,4 @@ private:
 };
 
 
-#endif // DIFFDRIVE_ARDUINO_REAL_ROBOT_H
+#endif // DIFF_HARDWARE_INTERFACE_H

@@ -1,11 +1,11 @@
-#include "diffdrive_arduino/diffdrive_arduino.h"
+#include "diff_hardware_interface/diff_hardware_interface.h"
 
 
-DiffDriveArduino::DiffDriveArduino()
-    : logger_(rclcpp::get_logger("DiffDriveArduino"))
+DiffHardwareInterface::DiffHardwareInterface()
+    : logger_(rclcpp::get_logger("DiffHardwareInterface"))
 {}
 
-return_type DiffDriveArduino::configure(const hardware_interface::HardwareInfo & info)
+return_type DiffHardwareInterface::configure(const hardware_interface::HardwareInfo & info)
 {
   if (configure_default(info) != return_type::OK) {
     return return_type::ERROR;
@@ -40,7 +40,7 @@ return_type DiffDriveArduino::configure(const hardware_interface::HardwareInfo &
   return return_type::OK;
 }
 
-std::vector<hardware_interface::StateInterface> DiffDriveArduino::export_state_interfaces()
+std::vector<hardware_interface::StateInterface> DiffHardwareInterface::export_state_interfaces()
 {
   // We need to set up a position and a velocity interface for each wheel
 
@@ -54,7 +54,7 @@ std::vector<hardware_interface::StateInterface> DiffDriveArduino::export_state_i
   return state_interfaces;
 }
 
-std::vector<hardware_interface::CommandInterface> DiffDriveArduino::export_command_interfaces()
+std::vector<hardware_interface::CommandInterface> DiffHardwareInterface::export_command_interfaces()
 {
   // We need to set up a velocity command interface for each wheel
 
@@ -67,7 +67,7 @@ std::vector<hardware_interface::CommandInterface> DiffDriveArduino::export_comma
 }
 
 
-return_type DiffDriveArduino::start()
+return_type DiffHardwareInterface::start()
 {
   RCLCPP_INFO(logger_, "Starting Controller...");
 
@@ -79,7 +79,7 @@ return_type DiffDriveArduino::start()
   return return_type::OK;
 }
 
-return_type DiffDriveArduino::stop()
+return_type DiffHardwareInterface::stop()
 {
   RCLCPP_INFO(logger_, "Stopping Controller...");
 
@@ -91,7 +91,7 @@ return_type DiffDriveArduino::stop()
   return return_type::OK;
 }
 
-hardware_interface::return_type DiffDriveArduino::read()
+hardware_interface::return_type DiffHardwareInterface::read()
 {
   wheel_left_pos_read_ = wheel_left_.getPosDegree();
   wheel_right_pos_read_ = wheel_right_.getPosDegree();
@@ -102,7 +102,7 @@ hardware_interface::return_type DiffDriveArduino::read()
   return return_type::OK;
 }
 
-hardware_interface::return_type DiffDriveArduino::write()
+hardware_interface::return_type DiffHardwareInterface::write()
 {
   wheel_left_.setVelRPM(wheel_left_vel_goal_);
   wheel_right_.setVelRPM(wheel_right_vel_goal_);
@@ -113,6 +113,6 @@ hardware_interface::return_type DiffDriveArduino::write()
 #include "pluginlib/class_list_macros.hpp"
 
 PLUGINLIB_EXPORT_CLASS(
-  DiffDriveArduino,
+  DiffHardwareInterface,
   hardware_interface::SystemInterface
 )
