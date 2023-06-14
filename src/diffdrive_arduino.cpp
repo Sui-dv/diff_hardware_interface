@@ -17,8 +17,8 @@ return_type DiffDriveArduino::configure(const hardware_interface::HardwareInfo &
   time_ = chrono::system_clock::now();
 
   // Get the wheel names
-  wheel_name_.push_back(info_.hardware_parameters["left_wheel_name"]);
-  wheel_name_.push_back(info_.hardware_parameters["right_wheel_name"]);
+  wheel_name_left_ = info_.hardware_parameters["left_wheel_name"];
+  wheel_name_right_ = info_.hardware_parameters["right_wheel_name"];
 
   // Config
   device_name_  = info_.hardware_parameters["device"];
@@ -27,31 +27,15 @@ return_type DiffDriveArduino::configure(const hardware_interface::HardwareInfo &
   update_rate_  = stoi(info_.hardware_parameters["loop_rate"]);
   encoder_rate_ = stoi(info_.hardware_parameters["enc_counts_per_rev"]);
 
-  // DEBUG
-  for (auto itr : wheel_name_){
-    RCLCPP_INFO(logger_, itr);
-  }
-  RCLCPP_INFO(logger_, device_name_);
-  RCLCPP_INFO(logger_, to_string(baudrate_));
-  RCLCPP_INFO(logger_, to_string(timeout_));
-  RCLCPP_INFO(logger_, to_string(update_rate_));
-  RCLCPP_INFO(logger_, to_string(encoder_rate_));
+  // Init dynamixel
+  shared_ptr<dynamixel::PortHandler> port_handler(dynamixel::PortHandler::getPortHandler(device_name_.c_str()));
+  shared_ptr<dynamixel::PacketHandler> packet_handler(dynamixel::PacketHandler::getPacketHandler(2.0));
 
-  // // OLD
-  // cfg_.left_wheel_name = info_.hardware_parameters["left_wheel_name"];
-  // cfg_.right_wheel_name = info_.hardware_parameters["right_wheel_name"];
-  // cfg_.loop_rate = std::stof(info_.hardware_parameters["loop_rate"]);
-  // cfg_.device = info_.hardware_parameters["device"];
-  // cfg_.baud_rate = std::stoi(info_.hardware_parameters["baud_rate"]);
-  // cfg_.timeout = std::stoi(info_.hardware_parameters["timeout"]);
-  // cfg_.enc_counts_per_rev = std::stoi(info_.hardware_parameters["enc_counts_per_rev"]);
+  wheel_left_.setup(1, VELOCITY_CONTROL, port_handler, packet_handler);
+  wheel_right_.setup(6, VELOCITY_CONTROL, port_handler, packet_handler);
 
-  // // Set up the wheels
-  // l_wheel_.setup(cfg_.left_wheel_name, cfg_.enc_counts_per_rev);
-  // r_wheel_.setup(cfg_.right_wheel_name, cfg_.enc_counts_per_rev);
-
-  // // Set up the Arduino
-  // arduino_.setup(cfg_.device, cfg_.baud_rate, cfg_.timeout);  
+  RCLCPP_INFO(logger_, wheel_left_.init());
+  RCLCPP_INFO(logger_, wheel_right_.init());
 
   RCLCPP_INFO(logger_, "Finished Configuration");
 

@@ -2,7 +2,9 @@
 #define DIFFDRIVE_ARDUINO_REAL_ROBOT_H
 
 #include <cstring>
+#include <string>
 #include <vector>
+#include <map>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -47,8 +49,8 @@ public:
 
 private:
 
-  vector<string>          wheel_name_;
-  vector<string>          steering_name_;
+  string                  wheel_name_left_;
+  string                  wheel_name_right_;
 
   string                  device_name_;     // Serial port
   uint32_t                baudrate_;        // Baudrate
@@ -56,6 +58,8 @@ private:
   uint16_t                update_rate_;     // Write rate
   uint16_t                encoder_rate_;    // Read rate
 
+  DynamixelHandle         wheel_left_;
+  DynamixelHandle         wheel_right_;
 
   Config cfg_;
   ArduinoComms arduino_;
