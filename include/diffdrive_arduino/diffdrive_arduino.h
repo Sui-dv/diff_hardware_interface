@@ -1,10 +1,7 @@
 #ifndef DIFFDRIVE_ARDUINO_REAL_ROBOT_H
 #define DIFFDRIVE_ARDUINO_REAL_ROBOT_H
 
-#include <cstring>
 #include <string>
-#include <vector>
-#include <map>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -14,10 +11,7 @@
 #include "hardware_interface/hardware_info.hpp"
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "hardware_interface/types/hardware_interface_status_values.hpp"
-
-#include "config.h"
-#include "wheel.h"
-#include "arduino_comms.h"
+#include "hardware_interface/types/hardware_interface_type_values.hpp"
 
 #include "dynamixel_wrapper/dynamixel_handle.hpp"
 
@@ -45,10 +39,7 @@ public:
 
   return_type write() override;
 
-
-
 private:
-
   string                  wheel_name_left_;
   string                  wheel_name_right_;
 
@@ -69,16 +60,7 @@ private:
   double                  wheel_left_vel_goal_ = 0;
   double                  wheel_right_vel_goal_ = 0;
 
-  Config cfg_;
-  ArduinoComms arduino_;
-
-  Wheel l_wheel_;
-  Wheel r_wheel_;
-
-  rclcpp::Logger logger_;
-
-  std::chrono::time_point<std::chrono::system_clock> time_;
-  
+  rclcpp::Logger logger_;  
 };
 
 

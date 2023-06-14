@@ -1,6 +1,5 @@
 #include "diffdrive_arduino/diffdrive_arduino.h"
 
-#include "hardware_interface/types/hardware_interface_type_values.hpp"
 
 DiffDriveArduino::DiffDriveArduino()
     : logger_(rclcpp::get_logger("DiffDriveArduino"))
@@ -13,8 +12,6 @@ return_type DiffDriveArduino::configure(const hardware_interface::HardwareInfo &
   }
 
   RCLCPP_INFO(logger_, "Configuring...");
-
-  time_ = chrono::system_clock::now();
 
   // Get the wheel names
   wheel_name_left_ = info_.hardware_parameters["left_wheel_name"];
@@ -112,8 +109,6 @@ hardware_interface::return_type DiffDriveArduino::write()
   
   return return_type::OK;  
 }
-
-
 
 #include "pluginlib/class_list_macros.hpp"
 
