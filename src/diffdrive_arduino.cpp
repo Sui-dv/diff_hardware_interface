@@ -49,10 +49,10 @@ std::vector<hardware_interface::StateInterface> DiffDriveArduino::export_state_i
 
   std::vector<hardware_interface::StateInterface> state_interfaces;
 
-  state_interfaces.emplace_back(hardware_interface::StateInterface(l_wheel_.name, hardware_interface::HW_IF_VELOCITY, &l_wheel_.vel));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(l_wheel_.name, hardware_interface::HW_IF_POSITION, &l_wheel_.pos));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(r_wheel_.name, hardware_interface::HW_IF_VELOCITY, &r_wheel_.vel));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(r_wheel_.name, hardware_interface::HW_IF_POSITION, &r_wheel_.pos));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_name_left_, hardware_interface::HW_IF_VELOCITY, &wheel_left_vel_read_));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_name_left_, hardware_interface::HW_IF_POSITION, &wheel_left_pos_read_));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_name_right_, hardware_interface::HW_IF_VELOCITY, &wheel_right_vel_read_));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_name_right_, hardware_interface::HW_IF_POSITION, &wheel_right_pos_read_));
 
   return state_interfaces;
 }
@@ -63,8 +63,8 @@ std::vector<hardware_interface::CommandInterface> DiffDriveArduino::export_comma
 
   std::vector<hardware_interface::CommandInterface> command_interfaces;
 
-  command_interfaces.emplace_back(hardware_interface::CommandInterface(l_wheel_.name, hardware_interface::HW_IF_VELOCITY, &l_wheel_.cmd));
-  command_interfaces.emplace_back(hardware_interface::CommandInterface(r_wheel_.name, hardware_interface::HW_IF_VELOCITY, &r_wheel_.cmd));
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(wheel_name_left_, hardware_interface::HW_IF_VELOCITY, &wheel_left_vel_goal_));
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(wheel_name_right_, hardware_interface::HW_IF_VELOCITY, &wheel_right_vel_goal_));
 
   return command_interfaces;
 }

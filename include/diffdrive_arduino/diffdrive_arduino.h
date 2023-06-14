@@ -61,6 +61,14 @@ private:
   DynamixelHandle         wheel_left_;
   DynamixelHandle         wheel_right_;
 
+  double                  wheel_left_vel_read_ = 0;
+  double                  wheel_left_pos_read_ = 0;
+  double                  wheel_right_vel_read_ = 0;
+  double                  wheel_right_pos_read_ = 0;
+
+  double                  wheel_left_vel_goal_ = 0;
+  double                  wheel_right_vel_goal_ = 0;
+
   Config cfg_;
   ArduinoComms arduino_;
 
