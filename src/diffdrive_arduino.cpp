@@ -74,10 +74,8 @@ return_type DiffDriveArduino::start()
 {
   RCLCPP_INFO(logger_, "Starting Controller...");
 
-  arduino_.sendEmptyMsg();
-  // arduino.setPidValues(9,7,0,100);
-  // arduino.setPidValues(14,7,0,100);
-  arduino_.setPidValues(30, 20, 0, 100);
+  RCLCPP_INFO(logger_, wheel_left_.activate());
+  RCLCPP_INFO(logger_, wheel_right_.activate());
 
   status_ = hardware_interface::status::STARTED;
 
@@ -87,6 +85,10 @@ return_type DiffDriveArduino::start()
 return_type DiffDriveArduino::stop()
 {
   RCLCPP_INFO(logger_, "Stopping Controller...");
+
+  RCLCPP_INFO(logger_, wheel_left_.deactivate());
+  RCLCPP_INFO(logger_, wheel_right_.deactivate());
+
   status_ = hardware_interface::status::STOPPED;
 
   return return_type::OK;
