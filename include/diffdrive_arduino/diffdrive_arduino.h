@@ -2,6 +2,8 @@
 #define DIFFDRIVE_ARDUINO_REAL_ROBOT_H
 
 #include <cstring>
+#include <vector>
+
 #include "rclcpp/rclcpp.hpp"
 
 #include "hardware_interface/base_interface.hpp"
@@ -15,8 +17,10 @@
 #include "wheel.h"
 #include "arduino_comms.h"
 
+#include "dynamixel_wrapper/dynamixel_handle.hpp"
 
 using hardware_interface::return_type;
+using namespace std;
 
 class DiffDriveArduino : public hardware_interface::BaseInterface<hardware_interface::SystemInterface>
 {
@@ -42,6 +46,9 @@ public:
 
 
 private:
+
+  vector<string> wheel_name_;
+  vector<string> steering_name_;
 
   Config cfg_;
   ArduinoComms arduino_;

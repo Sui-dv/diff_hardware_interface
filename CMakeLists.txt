@@ -13,6 +13,7 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(serial REQUIRED)
+find_package(dynamixel_wrapper REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(controller_manager REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -35,13 +36,12 @@ ament_target_dependencies(
   hardware_interface
   controller_manager
   serial
+  dynamixel_wrapper
   rclcpp
   pluginlib
 )
 
 pluginlib_export_plugin_description_file(hardware_interface robot_hardware.xml)
-
-
 
 add_library(fake_robot SHARED src/fake_robot.cpp src/wheel.cpp)
 set_property(TARGET fake_robot PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -61,16 +61,10 @@ ament_target_dependencies(
 
 pluginlib_export_plugin_description_file(hardware_interface fake_robot_hardware.xml)
 
-
-
-
 install(
   TARGETS diffdrive_arduino fake_robot
   DESTINATION lib
 )
-
-
-
 
 install(
   DIRECTORY controllers launch/
@@ -86,6 +80,7 @@ ament_export_dependencies(
   hardware_interface
   controller_manager
   serial
+  dynamixel_wrapper
   rclcpp
   pluginlib
 )

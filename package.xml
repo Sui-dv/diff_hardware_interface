@@ -22,7 +22,7 @@
   <depend>pluginlib</depend>
   <depend>rclcpp</depend>
   <depend>serial</depend>
-
+  <depend>dynamixel_wrapper</depend>
 
 
   <export>
