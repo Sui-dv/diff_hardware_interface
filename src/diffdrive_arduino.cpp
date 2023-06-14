@@ -97,54 +97,45 @@ return_type DiffDriveArduino::stop()
 hardware_interface::return_type DiffDriveArduino::read()
 {
 
-  // TODO fix chrono duration
+  // // TODO fix chrono duration
 
-  // Calculate time delta
-  auto new_time = std::chrono::system_clock::now();
-  std::chrono::duration<double> diff = new_time - time_;
-  double deltaSeconds = diff.count();
-  time_ = new_time;
-
-
-  if (!arduino_.connected())
-  {
-    return return_type::ERROR;
-  }
-
-  arduino_.readEncoderValues(l_wheel_.enc, r_wheel_.enc);
-
-  double pos_prev = l_wheel_.pos;
-  l_wheel_.pos = l_wheel_.calcEncAngle();
-  l_wheel_.vel = (l_wheel_.pos - pos_prev) / deltaSeconds;
-
-  pos_prev = r_wheel_.pos;
-  r_wheel_.pos = r_wheel_.calcEncAngle();
-  r_wheel_.vel = (r_wheel_.pos - pos_prev) / deltaSeconds;
+  // // Calculate time delta
+  // auto new_time = std::chrono::system_clock::now();
+  // std::chrono::duration<double> diff = new_time - time_;
+  // double deltaSeconds = diff.count();
+  // time_ = new_time;
 
 
+  // if (!arduino_.connected())
+  // {
+  //   return return_type::ERROR;
+  // }
+
+  // arduino_.readEncoderValues(l_wheel_.enc, r_wheel_.enc);
+
+  // double pos_prev = l_wheel_.pos;
+  // l_wheel_.pos = l_wheel_.calcEncAngle();
+  // l_wheel_.vel = (l_wheel_.pos - pos_prev) / deltaSeconds;
+
+  // pos_prev = r_wheel_.pos;
+  // r_wheel_.pos = r_wheel_.calcEncAngle();
+  // r_wheel_.vel = (r_wheel_.pos - pos_prev) / deltaSeconds;
 
   return return_type::OK;
-
-  
 }
 
 hardware_interface::return_type DiffDriveArduino::write()
 {
 
-  if (!arduino_.connected())
-  {
-    return return_type::ERROR;
-  }
+  // if (!arduino_.connected())
+  // {
+  //   return return_type::ERROR;
+  // }
 
-  arduino_.setMotorValues(l_wheel_.cmd / l_wheel_.rads_per_count / cfg_.loop_rate, r_wheel_.cmd / r_wheel_.rads_per_count / cfg_.loop_rate);
-
-
-
-
-  return return_type::OK;
-
-
+  RCLCPP_INFO(logger_, wheel_left_.setVelRPM(wheel_left_vel_goal_));
+  RCLCPP_INFO(logger_, wheel_right_.setVelRPM(wheel_right_vel_goal_));
   
+  return return_type::OK;  
 }
 
 
