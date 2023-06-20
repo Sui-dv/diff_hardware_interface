@@ -3,7 +3,13 @@
 
 DiffHardwareInterface::DiffHardwareInterface()
     : logger_(rclcpp::get_logger("DiffHardwareInterface"))
-{}
+{
+}
+
+DiffHardwareInterface::~DiffHardwareInterface()
+{
+  // Deactivate all dynamixels
+}
 
 return_type DiffHardwareInterface::configure(const hardware_interface::HardwareInfo & info)
 {
@@ -12,10 +18,27 @@ return_type DiffHardwareInterface::configure(const hardware_interface::HardwareI
   }
 
   RCLCPP_INFO(logger_, "Configuring...");
+  
+  // Init dynamixel
+  shared_ptr<dynamixel::PortHandler> port_handler(dynamixel::PortHandler::getPortHandler("/dev/ttyACM0"));
+  shared_ptr<dynamixel::PacketHandler> packet_handler(dynamixel::PacketHandler::getPacketHandler(2.0));
+  
+  WheelConfig configurator;
+  
+  // Get the wheel parameters
+  configurator.wheel_name    = info_.hardware_parameters["left_wheel_name"];
+  configurator.wheel_id      = stoi(info_.hardware_parameters["left_wheel_id"]);
+  configurator.real_hardware = stoi(info_.hardware_parameters["left_wheel_sim"]);
+  configurator.fake_motor    = make_shared<FakeDynamixelHandle>();
+  configurator.motor         = make_shared<DynamixelHandle>();
+  wheels_.push_back(configurator);
 
-  // Get the wheel names
-  wheel_name_left_ = info_.hardware_parameters["left_wheel_name"];
-  wheel_name_right_ = info_.hardware_parameters["right_wheel_name"];
+  configurator.wheel_name    = info_.hardware_parameters["right_wheel_name"];
+  configurator.wheel_id      = stoi(info_.hardware_parameters["right_wheel_id"]);
+  configurator.real_hardware = stoi(info_.hardware_parameters["right_wheel_sim"]);
+  configurator.fake_motor    = make_shared<FakeDynamixelHandle>();
+  configurator.motor         = make_shared<DynamixelHandle>();
+  wheels_.push_back(configurator);
 
   // Config
   device_name_  = info_.hardware_parameters["device"];
@@ -24,15 +47,10 @@ return_type DiffHardwareInterface::configure(const hardware_interface::HardwareI
   update_rate_  = stoi(info_.hardware_parameters["loop_rate"]);
   encoder_rate_ = stoi(info_.hardware_parameters["enc_counts_per_rev"]);
 
-  // Init dynamixel
-  shared_ptr<dynamixel::PortHandler> port_handler(dynamixel::PortHandler::getPortHandler(device_name_.c_str()));
-  shared_ptr<dynamixel::PacketHandler> packet_handler(dynamixel::PacketHandler::getPacketHandler(2.0));
-
-  wheel_left_.setup(1, VELOCITY_CONTROL, port_handler, packet_handler);
-  wheel_right_.setup(6, VELOCITY_CONTROL, port_handler, packet_handler);
-
-  RCLCPP_INFO(logger_, wheel_left_.init());
-  RCLCPP_INFO(logger_, wheel_right_.init());
+  wheels_[0].fake_motor.get()->setup(wheels_[0].wheel_id, POSITION_CONTROL, port_handler, packet_handler);
+  wheels_[1].fake_motor.get()->setup(wheels_[1].wheel_id, POSITION_CONTROL, port_handler, packet_handler);
+  RCLCPP_INFO(logger_, wheels_[0].fake_motor.get()->init(1000));
+  RCLCPP_INFO(logger_, wheels_[1].fake_motor.get()->init(1000));
 
   RCLCPP_INFO(logger_, "Finished Configuration");
 
@@ -46,10 +64,10 @@ std::vector<hardware_interface::StateInterface> DiffHardwareInterface::export_st
 
   std::vector<hardware_interface::StateInterface> state_interfaces;
 
-  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_name_left_, hardware_interface::HW_IF_VELOCITY, &wheel_left_vel_read_));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_name_left_, hardware_interface::HW_IF_POSITION, &wheel_left_pos_read_));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_name_right_, hardware_interface::HW_IF_VELOCITY, &wheel_right_vel_read_));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(wheel_name_right_, hardware_interface::HW_IF_POSITION, &wheel_right_pos_read_));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheels_[0].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[0].encoder_vel));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheels_[0].wheel_name, hardware_interface::HW_IF_POSITION, &wheels_[0].encoder_pos));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheels_[1].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[1].encoder_vel));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(wheels_[1].wheel_name, hardware_interface::HW_IF_POSITION, &wheels_[1].encoder_pos));
 
   return state_interfaces;
 }
@@ -60,8 +78,8 @@ std::vector<hardware_interface::CommandInterface> DiffHardwareInterface::export_
 
   std::vector<hardware_interface::CommandInterface> command_interfaces;
 
-  command_interfaces.emplace_back(hardware_interface::CommandInterface(wheel_name_left_, hardware_interface::HW_IF_VELOCITY, &wheel_left_vel_goal_));
-  command_interfaces.emplace_back(hardware_interface::CommandInterface(wheel_name_right_, hardware_interface::HW_IF_VELOCITY, &wheel_right_vel_goal_));
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(wheels_[0].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[0].goal));
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(wheels_[1].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[1].goal));
 
   return command_interfaces;
 }
@@ -71,8 +89,8 @@ return_type DiffHardwareInterface::start()
 {
   RCLCPP_INFO(logger_, "Starting Controller...");
 
-  RCLCPP_INFO(logger_, wheel_left_.activate());
-  RCLCPP_INFO(logger_, wheel_right_.activate());
+  RCLCPP_INFO(logger_, wheels_[0].fake_motor.get()->activate());
+  RCLCPP_INFO(logger_, wheels_[1].fake_motor.get()->activate());
 
   status_ = hardware_interface::status::STARTED;
 
@@ -83,8 +101,8 @@ return_type DiffHardwareInterface::stop()
 {
   RCLCPP_INFO(logger_, "Stopping Controller...");
 
-  RCLCPP_INFO(logger_, wheel_left_.deactivate());
-  RCLCPP_INFO(logger_, wheel_right_.deactivate());
+  RCLCPP_INFO(logger_, wheels_[0].fake_motor.get()->deactivate());
+  RCLCPP_INFO(logger_, wheels_[1].fake_motor.get()->deactivate());
 
   status_ = hardware_interface::status::STOPPED;
 
@@ -93,19 +111,19 @@ return_type DiffHardwareInterface::stop()
 
 hardware_interface::return_type DiffHardwareInterface::read()
 {
-  wheel_left_pos_read_ = wheel_left_.getPosDegree();
-  wheel_right_pos_read_ = wheel_right_.getPosDegree();
+  wheels_[0].encoder_pos = wheels_[0].fake_motor.get()->getPosDegree();
+  wheels_[1].encoder_pos = wheels_[1].fake_motor.get()->getPosDegree();
   
-  wheel_left_vel_read_ = wheel_left_.getVelRPM();
-  wheel_right_vel_read_ = wheel_right_.getVelRPM();
+  wheels_[0].encoder_vel = wheels_[0].fake_motor.get()->getVelRPM();
+  wheels_[1].encoder_vel = wheels_[1].fake_motor.get()->getVelRPM();
 
   return return_type::OK;
 }
 
 hardware_interface::return_type DiffHardwareInterface::write()
 {
-  wheel_left_.setVelRPM(wheel_left_vel_goal_);
-  wheel_right_.setVelRPM(wheel_right_vel_goal_);
+  wheels_[0].fake_motor.get()->setVelRPM(wheels_[0].goal);
+  wheels_[1].fake_motor.get()->setVelRPM(wheels_[1].goal);
   
   return return_type::OK;  
 }

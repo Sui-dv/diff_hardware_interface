@@ -2,6 +2,7 @@
 #define DIFF_HARDWARE_INTERFACE_H
 
 #include <string>
+#include <map>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -14,6 +15,7 @@
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 
 #include "dynamixel_wrapper/dynamixel_handle.hpp"
+#include "dynamixel_wrapper/wheel_config.hpp"
 
 using hardware_interface::return_type;
 using namespace std;
@@ -24,6 +26,8 @@ class DiffHardwareInterface : public hardware_interface::BaseInterface<hardware_
 
 public:
   DiffHardwareInterface();
+
+  ~DiffHardwareInterface();
 
   return_type configure(const hardware_interface::HardwareInfo & info) override;
 
@@ -40,6 +44,9 @@ public:
   return_type write() override;
 
 private:
+  vector<WheelConfig>     wheels_;
+  uint16_t                wheel_count_;
+
   string                  wheel_name_left_;
   string                  wheel_name_right_;
 
@@ -60,7 +67,7 @@ private:
   double                  wheel_left_vel_goal_ = 0;
   double                  wheel_right_vel_goal_ = 0;
 
-  rclcpp::Logger logger_;  
+  rclcpp::Logger          logger_;  
 };
 
 
