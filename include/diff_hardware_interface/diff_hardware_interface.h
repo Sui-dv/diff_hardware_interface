@@ -14,7 +14,6 @@
 #include "hardware_interface/types/hardware_interface_status_values.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 
-#include "dynamixel_wrapper/dynamixel_handle.hpp"
 #include "dynamixel_wrapper/wheel_config.hpp"
 
 using hardware_interface::return_type;

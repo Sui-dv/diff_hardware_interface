@@ -19,38 +19,36 @@ return_type DiffHardwareInterface::configure(const hardware_interface::HardwareI
 
   RCLCPP_INFO(logger_, "Configuring...");
   
-  // Init dynamixel
-  shared_ptr<dynamixel::PortHandler> port_handler(dynamixel::PortHandler::getPortHandler("/dev/ttyACM0"));
-  shared_ptr<dynamixel::PacketHandler> packet_handler(dynamixel::PacketHandler::getPacketHandler(2.0));
-  
-  WheelConfig configurator;
-  
-  // Get the wheel parameters
-  configurator.wheel_name    = info_.hardware_parameters["left_wheel_name"];
-  configurator.wheel_id      = stoi(info_.hardware_parameters["left_wheel_id"]);
-  configurator.real_hardware = stoi(info_.hardware_parameters["left_wheel_sim"]);
-  configurator.fake_motor    = make_shared<FakeDynamixelHandle>();
-  configurator.motor         = make_shared<DynamixelHandle>();
-  wheels_.push_back(configurator);
+  // Configure wheel params
+  wheel_count_ = stoi(info_.hardware_parameters["wheel_count"]);
+  for (auto itr = 1; itr <= wheel_count_; itr++){
+    WheelConfig configurator;
 
-  configurator.wheel_name    = info_.hardware_parameters["right_wheel_name"];
-  configurator.wheel_id      = stoi(info_.hardware_parameters["right_wheel_id"]);
-  configurator.real_hardware = stoi(info_.hardware_parameters["right_wheel_sim"]);
-  configurator.fake_motor    = make_shared<FakeDynamixelHandle>();
-  configurator.motor         = make_shared<DynamixelHandle>();
-  wheels_.push_back(configurator);
+    configurator.wheel_name    = info_.hardware_parameters["wheel_name_" + to_string(itr)];
+    configurator.wheel_id      = stoi(info_.hardware_parameters["wheel_id_" + to_string(itr)]);
+    configurator.mode          = stoi(info_.hardware_parameters["wheel_mode_" + to_string(itr)]);
+    configurator.real_hardware = stoi(info_.hardware_parameters["wheel_sim_" + to_string(itr)]);
+    configurator.fake_motor    = make_shared<FakeDynamixelHandle>();
+    configurator.motor         = make_shared<DynamixelHandle>();
 
-  // Config
+    wheels_.push_back(configurator);
+  }
+
+  // Configure port params
   device_name_  = info_.hardware_parameters["device"];
   baudrate_     = stoi(info_.hardware_parameters["baud_rate"]);
   timeout_      = stoi(info_.hardware_parameters["timeout"]);
   update_rate_  = stoi(info_.hardware_parameters["loop_rate"]);
   encoder_rate_ = stoi(info_.hardware_parameters["enc_counts_per_rev"]);
 
-  wheels_[0].fake_motor.get()->setup(wheels_[0].wheel_id, POSITION_CONTROL, port_handler, packet_handler);
-  wheels_[1].fake_motor.get()->setup(wheels_[1].wheel_id, POSITION_CONTROL, port_handler, packet_handler);
-  RCLCPP_INFO(logger_, wheels_[0].fake_motor.get()->init(1000));
-  RCLCPP_INFO(logger_, wheels_[1].fake_motor.get()->init(1000));
+  // Init dynamixel
+  shared_ptr<dynamixel::PortHandler> port_handler(dynamixel::PortHandler::getPortHandler(device_name_.c_str()));
+  shared_ptr<dynamixel::PacketHandler> packet_handler(dynamixel::PacketHandler::getPacketHandler(2.0));
+  
+  for (auto itr : wheels_){
+    itr.fake_motor.get()->setup(itr.wheel_id, itr.mode ? POSITION_CONTROL : VELOCITY_CONTROL , port_handler, packet_handler);
+    RCLCPP_INFO(logger_, itr.fake_motor.get()->init(1000));
+  }
 
   RCLCPP_INFO(logger_, "Finished Configuration");
 
