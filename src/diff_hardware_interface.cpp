@@ -45,9 +45,10 @@ return_type DiffHardwareInterface::configure(const hardware_interface::HardwareI
   shared_ptr<dynamixel::PortHandler> port_handler(dynamixel::PortHandler::getPortHandler(device_name_.c_str()));
   shared_ptr<dynamixel::PacketHandler> packet_handler(dynamixel::PacketHandler::getPacketHandler(2.0));
   
+  // Complete wheel setup
   for (auto itr : wheels_){
     itr.fake_motor.get()->setup(itr.wheel_id, itr.mode ? POSITION_CONTROL : VELOCITY_CONTROL , port_handler, packet_handler);
-    RCLCPP_INFO(logger_, itr.fake_motor.get()->init(1000));
+    RCLCPP_INFO(logger_, itr.fake_motor.get()->init(0));
   }
 
   RCLCPP_INFO(logger_, "Finished Configuration");
@@ -62,10 +63,15 @@ std::vector<hardware_interface::StateInterface> DiffHardwareInterface::export_st
 
   std::vector<hardware_interface::StateInterface> state_interfaces;
 
-  state_interfaces.emplace_back(hardware_interface::StateInterface(wheels_[0].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[0].encoder_vel));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(wheels_[0].wheel_name, hardware_interface::HW_IF_POSITION, &wheels_[0].encoder_pos));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(wheels_[1].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[1].encoder_vel));
-  state_interfaces.emplace_back(hardware_interface::StateInterface(wheels_[1].wheel_name, hardware_interface::HW_IF_POSITION, &wheels_[1].encoder_pos));
+  for (auto itr : wheels_){
+    state_interfaces.emplace_back(hardware_interface::StateInterface(itr.wheel_name, hardware_interface::HW_IF_VELOCITY, &itr.encoder_vel));
+    state_interfaces.emplace_back(hardware_interface::StateInterface(itr.wheel_name, hardware_interface::HW_IF_POSITION, &itr.encoder_pos));
+  }
+
+  // state_interfaces.emplace_back(hardware_interface::StateInterface(wheels_[0].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[0].encoder_vel));
+  // state_interfaces.emplace_back(hardware_interface::StateInterface(wheels_[0].wheel_name, hardware_interface::HW_IF_POSITION, &wheels_[0].encoder_pos));
+  // state_interfaces.emplace_back(hardware_interface::StateInterface(wheels_[1].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[1].encoder_vel));
+  // state_interfaces.emplace_back(hardware_interface::StateInterface(wheels_[1].wheel_name, hardware_interface::HW_IF_POSITION, &wheels_[1].encoder_pos));
 
   return state_interfaces;
 }
@@ -76,8 +82,12 @@ std::vector<hardware_interface::CommandInterface> DiffHardwareInterface::export_
 
   std::vector<hardware_interface::CommandInterface> command_interfaces;
 
-  command_interfaces.emplace_back(hardware_interface::CommandInterface(wheels_[0].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[0].goal));
-  command_interfaces.emplace_back(hardware_interface::CommandInterface(wheels_[1].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[1].goal));
+  for (auto itr : wheels_){
+    command_interfaces.emplace_back(hardware_interface::CommandInterface(itr.wheel_name, itr.mode ? hardware_interface::HW_IF_POSITION : hardware_interface::HW_IF_VELOCITY, &itr.goal));
+  }
+
+  // command_interfaces.emplace_back(hardware_interface::CommandInterface(wheels_[0].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[0].goal));
+  // command_interfaces.emplace_back(hardware_interface::CommandInterface(wheels_[1].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[1].goal));
 
   return command_interfaces;
 }
