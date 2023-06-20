@@ -10,7 +10,11 @@ DiffHardwareInterface::~DiffHardwareInterface()
 {
   // Deactivate all dynamixels
   for (auto itr : wheels_){
-    RCLCPP_INFO(logger_, itr.fake_motor.get()->deactivate());
+    if (itr.real_hardware){
+      RCLCPP_INFO(logger_, itr.real_motor.get()->activate());
+    } else {
+      RCLCPP_INFO(logger_, itr.fake_motor.get()->deactivate());
+    }
   }
 }
 
@@ -96,7 +100,11 @@ return_type DiffHardwareInterface::start()
   RCLCPP_INFO(logger_, "Starting Controller...");
 
   for (auto itr : wheels_){
-    RCLCPP_INFO(logger_, itr.fake_motor.get()->activate());
+    if (itr.real_hardware){
+      RCLCPP_INFO(logger_, itr.real_motor.get()->activate());
+    } else {
+      RCLCPP_INFO(logger_, itr.fake_motor.get()->activate());
+    }
   }
 
   status_ = hardware_interface::status::STARTED;
@@ -109,7 +117,11 @@ return_type DiffHardwareInterface::stop()
   RCLCPP_INFO(logger_, "Stopping Controller...");
 
   for (auto itr : wheels_){
-    RCLCPP_INFO(logger_, itr.fake_motor.get()->deactivate());
+    if (itr.real_hardware){
+      RCLCPP_INFO(logger_, itr.real_motor.get()->activate());
+    } else {
+      RCLCPP_INFO(logger_, itr.fake_motor.get()->deactivate());
+    }
   }
 
   status_ = hardware_interface::status::STOPPED;
@@ -120,8 +132,13 @@ return_type DiffHardwareInterface::stop()
 hardware_interface::return_type DiffHardwareInterface::read()
 {
   for (auto itr : wheels_){
-    itr.encoder_pos = itr.fake_motor.get()->getPosDegree();
-    itr.encoder_vel = itr.fake_motor.get()->getVelRPM();
+    if (itr.real_hardware){
+      itr.encoder_pos = itr.real_motor.get()->getPosDegree();
+      itr.encoder_vel = itr.real_motor.get()->getVelRPM();
+    } else {
+      itr.encoder_pos = itr.fake_motor.get()->getPosDegree();
+      itr.encoder_vel = itr.fake_motor.get()->getVelRPM();
+    }
   }
 
   return return_type::OK;
@@ -130,7 +147,19 @@ hardware_interface::return_type DiffHardwareInterface::read()
 hardware_interface::return_type DiffHardwareInterface::write()
 {
   for (auto itr : wheels_){
-    itr.fake_motor.get()->setVelRPM(itr.goal);
+    if (itr.real_hardware){
+      if (itr.mode){
+        itr.real_motor.get()->setPosDegree(itr.goal);
+      } else {
+        itr.real_motor.get()->setVelRPM(itr.goal);
+      }
+    } else {
+      if (itr.mode){
+        itr.fake_motor.get()->setPosDegree(itr.goal);
+      } else {
+        itr.fake_motor.get()->setVelRPM(itr.goal);
+      }
+    }
   }
   
   return return_type::OK;  
