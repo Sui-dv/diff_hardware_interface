@@ -34,9 +34,9 @@ return_type DiffHardwareInterface::configure(const hardware_interface::HardwareI
     configurator.wheel_name    = info_.hardware_parameters["wheel_name_" + to_string(itr)];
     configurator.wheel_id      = stoi(info_.hardware_parameters["wheel_id_" + to_string(itr)]);
     configurator.mode          = stoi(info_.hardware_parameters["wheel_mode_" + to_string(itr)]);
-    configurator.real_hardware = stoi(info_.hardware_parameters["real_hardware_" + to_string(itr)]);
+    configurator.real_hardware = stoi(info_.hardware_parameters["wheel_sim_" + to_string(itr)]);
     configurator.fake_motor    = make_shared<FakeDynamixelHandle>();
-    configurator.real_motor    = make_shared<DynamixelHandle>();
+    configurator.motor         = make_shared<DynamixelHandle>();
 
     wheels_.push_back(configurator);
   }
@@ -52,15 +52,10 @@ return_type DiffHardwareInterface::configure(const hardware_interface::HardwareI
   shared_ptr<dynamixel::PortHandler> port_handler(dynamixel::PortHandler::getPortHandler(device_name_.c_str()));
   shared_ptr<dynamixel::PacketHandler> packet_handler(dynamixel::PacketHandler::getPacketHandler(2.0));
   
-  // Complete the wheel setup
+  // Complete wheel setup
   for (auto itr : wheels_){
-    if (itr.real_hardware){
-      itr.real_motor.get()->setup(itr.wheel_id, itr.mode ? POSITION_CONTROL : VELOCITY_CONTROL , port_handler, packet_handler);
-      RCLCPP_INFO(logger_, itr.real_motor.get()->init());
-    } else {
-      itr.fake_motor.get()->setup(itr.wheel_id, itr.mode ? POSITION_CONTROL : VELOCITY_CONTROL , port_handler, packet_handler);
-      RCLCPP_INFO(logger_, itr.fake_motor.get()->init(0));
-    }
+    itr.fake_motor.get()->setup(itr.wheel_id, itr.mode ? POSITION_CONTROL : VELOCITY_CONTROL , port_handler, packet_handler);
+    RCLCPP_INFO(logger_, itr.fake_motor.get()->init(0));
   }
 
   RCLCPP_INFO(logger_, "Finished Configuration");
