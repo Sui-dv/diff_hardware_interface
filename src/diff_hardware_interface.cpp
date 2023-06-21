@@ -54,8 +54,13 @@ return_type DiffHardwareInterface::configure(const hardware_interface::HardwareI
   
   // Complete wheel setup
   for (auto itr : wheels_){
-    itr.real_motor.get()->setup(itr.wheel_id, itr.mode ? POSITION_CONTROL : VELOCITY_CONTROL , port_handler, packet_handler);
-    RCLCPP_INFO(logger_, itr.real_motor.get()->init());
+    if (itr.real_hardware){
+      itr.real_motor.get()->setup(itr.wheel_id, itr.mode ? POSITION_CONTROL : VELOCITY_CONTROL , port_handler, packet_handler);
+      RCLCPP_INFO(logger_, itr.real_motor.get()->init());
+    } else {
+      itr.fake_motor.get()->setup(itr.wheel_id, itr.mode ? POSITION_CONTROL : VELOCITY_CONTROL , port_handler, packet_handler);
+      RCLCPP_INFO(logger_, itr.fake_motor.get()->init(0));
+    }
   }
 
   RCLCPP_INFO(logger_, "Finished Configuration");
@@ -95,11 +100,11 @@ return_type DiffHardwareInterface::start()
   RCLCPP_INFO(logger_, "Starting Controller...");
 
   for (auto itr : wheels_){
-    // if (itr.real_hardware){
-    //   RCLCPP_INFO(logger_, itr.real_motor.get()->activate());
-    // } else {
+    if (itr.real_hardware){
       RCLCPP_INFO(logger_, itr.real_motor.get()->activate());
-    // }
+    } else {
+      RCLCPP_INFO(logger_, itr.fake_motor.get()->activate());
+    }
   }
 
   status_ = hardware_interface::status::STARTED;
@@ -112,11 +117,11 @@ return_type DiffHardwareInterface::stop()
   RCLCPP_INFO(logger_, "Stopping Controller...");
 
   for (auto itr : wheels_){
-    // if (itr.real_hardware){
-    //   RCLCPP_INFO(logger_, itr.real_motor.get()->activate());
-    // } else {
+    if (itr.real_hardware){
       RCLCPP_INFO(logger_, itr.real_motor.get()->deactivate());
-    // }
+    } else {
+      RCLCPP_INFO(logger_, itr.fake_motor.get()->deactivate());
+    }
   }
 
   status_ = hardware_interface::status::STOPPED;
@@ -126,20 +131,14 @@ return_type DiffHardwareInterface::stop()
 
 hardware_interface::return_type DiffHardwareInterface::read()
 {
-  // for (auto itr : wheels_){
-  //   // if (itr.real_hardware){
-  //   //   itr.encoder_pos = itr.real_motor.get()->getPosDegree();
-  //   //   itr.encoder_vel = itr.real_motor.get()->getVelRPM();
-  //   // } else {
-  //     itr.encoder_pos = itr.real_motor.get()->getPosDegree();
-  //     itr.encoder_vel = itr.real_motor.get()->getVelRPM();
-  //   // }
-  // }
-
   for (int itr = 0; itr < wheel_count_; itr++){
-    wheels_[itr].encoder_pos = wheels_[itr].real_motor.get()->getPosDegree();
-    wheels_[itr].encoder_vel = wheels_[itr].real_motor.get()->getVelRPM();
-    RCLCPP_INFO(logger_, to_string(wheels_[itr].encoder_vel));
+    if (wheels_[itr].real_hardware){
+      wheels_[itr].encoder_pos = wheels_[itr].real_motor.get()->getPosDegree();
+      wheels_[itr].encoder_vel = wheels_[itr].real_motor.get()->getVelRPM();
+    } else {
+      wheels_[itr].encoder_pos = wheels_[itr].fake_motor.get()->getPosDegree();
+      wheels_[itr].encoder_vel = wheels_[itr].fake_motor.get()->getVelRPM();
+    }
   }
 
   return return_type::OK;
@@ -162,13 +161,6 @@ hardware_interface::return_type DiffHardwareInterface::write()
       }
     }
   }
-  
-  // wheels_[0].real_motor.get()->setVelRPM(wheels_[0].goal);
-  // if (wheels_[0].mode){
-  //   wheels_[0].real_motor.get()->setPosDegree(wheels_[0].goal);
-  // } else {
-  //   wheels_[0].real_motor.get()->setVelRPM(wheels_[0].goal);
-  // }
 
   return return_type::OK;  
 }
