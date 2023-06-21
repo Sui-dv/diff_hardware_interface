@@ -51,9 +51,7 @@ private:
 
   string                  device_name_;     // Serial port
   uint32_t                baudrate_;        // Baudrate
-  uint16_t                timeout_;         // Serial timeout
   uint16_t                update_rate_;     // Write rate
-  uint16_t                encoder_rate_;    // Read rate
 
   rclcpp::Logger          logger_;  
 };

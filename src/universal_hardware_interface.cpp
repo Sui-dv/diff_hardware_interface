@@ -44,9 +44,7 @@ return_type UnivHardwareInterface::configure(const hardware_interface::HardwareI
   // Configure port params
   device_name_  = info_.hardware_parameters["device"];
   baudrate_     = stoi(info_.hardware_parameters["baud_rate"]);
-  timeout_      = stoi(info_.hardware_parameters["timeout"]);
   update_rate_  = stoi(info_.hardware_parameters["loop_rate"]);
-  encoder_rate_ = stoi(info_.hardware_parameters["enc_counts_per_rev"]);
 
   // Init dynamixel
   shared_ptr<dynamixel::PortHandler> port_handler(dynamixel::PortHandler::getPortHandler(device_name_.c_str()));
