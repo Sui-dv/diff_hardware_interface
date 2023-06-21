@@ -11,7 +11,7 @@ DiffHardwareInterface::~DiffHardwareInterface()
   // Deactivate all dynamixels
   for (auto itr : wheels_){
     if (itr.real_hardware){
-      RCLCPP_INFO(logger_, itr.real_motor.get()->activate());
+      RCLCPP_INFO(logger_, itr.real_motor.get()->deactivate());
     } else {
       RCLCPP_INFO(logger_, itr.fake_motor.get()->deactivate());
     }
@@ -28,15 +28,15 @@ return_type DiffHardwareInterface::configure(const hardware_interface::HardwareI
   
   // Configure wheel params
   wheel_count_ = stoi(info_.hardware_parameters["wheel_count"]);
-  for (auto itr = 1; itr <= wheel_count_; itr++){
+  for (int itr = 1; itr <= wheel_count_; itr++){
     WheelConfig configurator;
 
     configurator.wheel_name    = info_.hardware_parameters["wheel_name_" + to_string(itr)];
     configurator.wheel_id      = stoi(info_.hardware_parameters["wheel_id_" + to_string(itr)]);
     configurator.mode          = stoi(info_.hardware_parameters["wheel_mode_" + to_string(itr)]);
-    configurator.real_hardware = stoi(info_.hardware_parameters["wheel_sim_" + to_string(itr)]);
+    configurator.real_hardware = stoi(info_.hardware_parameters["real_hardware_" + to_string(itr)]);
     configurator.fake_motor    = make_shared<FakeDynamixelHandle>();
-    configurator.motor         = make_shared<DynamixelHandle>();
+    configurator.real_motor    = make_shared<DynamixelHandle>();
 
     wheels_.push_back(configurator);
   }
@@ -54,8 +54,8 @@ return_type DiffHardwareInterface::configure(const hardware_interface::HardwareI
   
   // Complete wheel setup
   for (auto itr : wheels_){
-    itr.fake_motor.get()->setup(itr.wheel_id, itr.mode ? POSITION_CONTROL : VELOCITY_CONTROL , port_handler, packet_handler);
-    RCLCPP_INFO(logger_, itr.fake_motor.get()->init(0));
+    itr.real_motor.get()->setup(itr.wheel_id, itr.mode ? POSITION_CONTROL : VELOCITY_CONTROL , port_handler, packet_handler);
+    RCLCPP_INFO(logger_, itr.real_motor.get()->init());
   }
 
   RCLCPP_INFO(logger_, "Finished Configuration");
@@ -69,9 +69,9 @@ std::vector<hardware_interface::StateInterface> DiffHardwareInterface::export_st
 
   std::vector<hardware_interface::StateInterface> state_interfaces;
 
-  for (auto itr : wheels_){
-    state_interfaces.emplace_back(hardware_interface::StateInterface(itr.wheel_name, hardware_interface::HW_IF_VELOCITY, &itr.encoder_vel));
-    state_interfaces.emplace_back(hardware_interface::StateInterface(itr.wheel_name, hardware_interface::HW_IF_POSITION, &itr.encoder_pos));
+  for (int itr = 0; itr < wheel_count_; itr++){
+    state_interfaces.emplace_back(hardware_interface::StateInterface(wheels_[itr].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[itr].encoder_vel));
+    state_interfaces.emplace_back(hardware_interface::StateInterface(wheels_[itr].wheel_name, hardware_interface::HW_IF_POSITION, &wheels_[itr].encoder_pos));
   }
 
   return state_interfaces;
@@ -82,8 +82,8 @@ std::vector<hardware_interface::CommandInterface> DiffHardwareInterface::export_
 
   std::vector<hardware_interface::CommandInterface> command_interfaces;
 
-  for (auto itr : wheels_){
-    command_interfaces.emplace_back(hardware_interface::CommandInterface(itr.wheel_name, itr.mode ? hardware_interface::HW_IF_POSITION : hardware_interface::HW_IF_VELOCITY, &itr.goal));
+  for (int itr = 0; itr < wheel_count_; itr++){
+    command_interfaces.emplace_back(hardware_interface::CommandInterface(wheels_[itr].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[itr].goal));
   }
 
   return command_interfaces;
@@ -95,11 +95,11 @@ return_type DiffHardwareInterface::start()
   RCLCPP_INFO(logger_, "Starting Controller...");
 
   for (auto itr : wheels_){
-    if (itr.real_hardware){
+    // if (itr.real_hardware){
+    //   RCLCPP_INFO(logger_, itr.real_motor.get()->activate());
+    // } else {
       RCLCPP_INFO(logger_, itr.real_motor.get()->activate());
-    } else {
-      RCLCPP_INFO(logger_, itr.fake_motor.get()->activate());
-    }
+    // }
   }
 
   status_ = hardware_interface::status::STARTED;
@@ -112,11 +112,11 @@ return_type DiffHardwareInterface::stop()
   RCLCPP_INFO(logger_, "Stopping Controller...");
 
   for (auto itr : wheels_){
-    if (itr.real_hardware){
-      RCLCPP_INFO(logger_, itr.real_motor.get()->activate());
-    } else {
-      RCLCPP_INFO(logger_, itr.fake_motor.get()->deactivate());
-    }
+    // if (itr.real_hardware){
+    //   RCLCPP_INFO(logger_, itr.real_motor.get()->activate());
+    // } else {
+      RCLCPP_INFO(logger_, itr.real_motor.get()->deactivate());
+    // }
   }
 
   status_ = hardware_interface::status::STOPPED;
@@ -126,14 +126,20 @@ return_type DiffHardwareInterface::stop()
 
 hardware_interface::return_type DiffHardwareInterface::read()
 {
-  for (auto itr : wheels_){
-    if (itr.real_hardware){
-      itr.encoder_pos = itr.real_motor.get()->getPosDegree();
-      itr.encoder_vel = itr.real_motor.get()->getVelRPM();
-    } else {
-      itr.encoder_pos = itr.fake_motor.get()->getPosDegree();
-      itr.encoder_vel = itr.fake_motor.get()->getVelRPM();
-    }
+  // for (auto itr : wheels_){
+  //   // if (itr.real_hardware){
+  //   //   itr.encoder_pos = itr.real_motor.get()->getPosDegree();
+  //   //   itr.encoder_vel = itr.real_motor.get()->getVelRPM();
+  //   // } else {
+  //     itr.encoder_pos = itr.real_motor.get()->getPosDegree();
+  //     itr.encoder_vel = itr.real_motor.get()->getVelRPM();
+  //   // }
+  // }
+
+  for (int itr = 0; itr < wheel_count_; itr++){
+    wheels_[itr].encoder_pos = wheels_[itr].real_motor.get()->getPosDegree();
+    wheels_[itr].encoder_vel = wheels_[itr].real_motor.get()->getVelRPM();
+    RCLCPP_INFO(logger_, to_string(wheels_[itr].encoder_vel));
   }
 
   return return_type::OK;
@@ -157,6 +163,13 @@ hardware_interface::return_type DiffHardwareInterface::write()
     }
   }
   
+  // wheels_[0].real_motor.get()->setVelRPM(wheels_[0].goal);
+  // if (wheels_[0].mode){
+  //   wheels_[0].real_motor.get()->setPosDegree(wheels_[0].goal);
+  // } else {
+  //   wheels_[0].real_motor.get()->setVelRPM(wheels_[0].goal);
+  // }
+
   return return_type::OK;  
 }
 
