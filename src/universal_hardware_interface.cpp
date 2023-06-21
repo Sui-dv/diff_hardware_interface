@@ -1,12 +1,12 @@
-#include "diff_hardware_interface/diff_hardware_interface.h"
+#include "universal_hardware_interface/universal_hardware_interface.h"
 
 
-DiffHardwareInterface::DiffHardwareInterface()
-    : logger_(rclcpp::get_logger("DiffHardwareInterface"))
+UnivHardwareInterface::UnivHardwareInterface()
+    : logger_(rclcpp::get_logger("UnivHardwareInterface"))
 {
 }
 
-DiffHardwareInterface::~DiffHardwareInterface()
+UnivHardwareInterface::~UnivHardwareInterface()
 {
   // Deactivate all dynamixels
   for (auto itr : wheels_){
@@ -18,7 +18,7 @@ DiffHardwareInterface::~DiffHardwareInterface()
   }
 }
 
-return_type DiffHardwareInterface::configure(const hardware_interface::HardwareInfo & info)
+return_type UnivHardwareInterface::configure(const hardware_interface::HardwareInfo & info)
 {
   if (configure_default(info) != return_type::OK) {
     return return_type::ERROR;
@@ -69,7 +69,7 @@ return_type DiffHardwareInterface::configure(const hardware_interface::HardwareI
   return return_type::OK;
 }
 
-std::vector<hardware_interface::StateInterface> DiffHardwareInterface::export_state_interfaces()
+std::vector<hardware_interface::StateInterface> UnivHardwareInterface::export_state_interfaces()
 {
 
   std::vector<hardware_interface::StateInterface> state_interfaces;
@@ -82,7 +82,7 @@ std::vector<hardware_interface::StateInterface> DiffHardwareInterface::export_st
   return state_interfaces;
 }
 
-std::vector<hardware_interface::CommandInterface> DiffHardwareInterface::export_command_interfaces()
+std::vector<hardware_interface::CommandInterface> UnivHardwareInterface::export_command_interfaces()
 {
 
   std::vector<hardware_interface::CommandInterface> command_interfaces;
@@ -95,7 +95,7 @@ std::vector<hardware_interface::CommandInterface> DiffHardwareInterface::export_
 }
 
 
-return_type DiffHardwareInterface::start()
+return_type UnivHardwareInterface::start()
 {
   RCLCPP_INFO(logger_, "Starting Controller...");
 
@@ -112,7 +112,7 @@ return_type DiffHardwareInterface::start()
   return return_type::OK;
 }
 
-return_type DiffHardwareInterface::stop()
+return_type UnivHardwareInterface::stop()
 {
   RCLCPP_INFO(logger_, "Stopping Controller...");
 
@@ -129,7 +129,7 @@ return_type DiffHardwareInterface::stop()
   return return_type::OK;
 }
 
-hardware_interface::return_type DiffHardwareInterface::read()
+hardware_interface::return_type UnivHardwareInterface::read()
 {
   for (int itr = 0; itr < wheel_count_; itr++){
     if (wheels_[itr].real_hardware){
@@ -146,7 +146,7 @@ hardware_interface::return_type DiffHardwareInterface::read()
   return return_type::OK;
 }
 
-hardware_interface::return_type DiffHardwareInterface::write()
+hardware_interface::return_type UnivHardwareInterface::write()
 {
   for (auto itr : wheels_){
     if (itr.real_hardware){
@@ -170,6 +170,6 @@ hardware_interface::return_type DiffHardwareInterface::write()
 #include "pluginlib/class_list_macros.hpp"
 
 PLUGINLIB_EXPORT_CLASS(
-  DiffHardwareInterface,
+  UnivHardwareInterface,
   hardware_interface::SystemInterface
 )

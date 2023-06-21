@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(diff_hardware_interface)
+project(universal_hardware_interface)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -17,13 +17,13 @@ find_package(controller_manager REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(pluginlib REQUIRED)
 
-add_library(diff_hardware_interface SHARED src/diff_hardware_interface.cpp)
+add_library(universal_hardware_interface SHARED src/universal_hardware_interface.cpp)
 target_include_directories(
-  diff_hardware_interface
+  universal_hardware_interface
   PRIVATE
   include
 )
-ament_target_dependencies(diff_hardware_interface
+ament_target_dependencies(universal_hardware_interface
   hardware_interface
   controller_manager
   dynamixel_wrapper
@@ -34,12 +34,12 @@ ament_target_dependencies(diff_hardware_interface
 pluginlib_export_plugin_description_file(hardware_interface robot_hardware.xml)
 
 install(
-  TARGETS diff_hardware_interface
+  TARGETS universal_hardware_interface
   DESTINATION lib
 )
 
 ament_export_libraries(
-  diff_hardware_interface
+  universal_hardware_interface
 )
 
 ament_export_dependencies(

@@ -1,5 +1,5 @@
-#ifndef DIFF_HARDWARE_INTERFACE_H
-#define DIFF_HARDWARE_INTERFACE_H
+#ifndef UNIVERSAL_HARDWARE_INTERFACE_H
+#define UNIVERSAL_HARDWARE_INTERFACE_H
 
 #include <string>
 #include <map>
@@ -19,14 +19,14 @@
 using hardware_interface::return_type;
 using namespace std;
 
-class DiffHardwareInterface : public hardware_interface::BaseInterface<hardware_interface::SystemInterface>
+class UnivHardwareInterface : public hardware_interface::BaseInterface<hardware_interface::SystemInterface>
 {
 
 
 public:
-  DiffHardwareInterface();
+  UnivHardwareInterface();
 
-  ~DiffHardwareInterface();
+  ~UnivHardwareInterface();
 
   return_type configure(const hardware_interface::HardwareInfo & info) override;
 
@@ -59,4 +59,4 @@ private:
 };
 
 
-#endif // DIFF_HARDWARE_INTERFACE_H
+#endif // UNIVERSAL_HARDWARE_INTERFACE_H_
