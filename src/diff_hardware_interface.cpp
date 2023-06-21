@@ -138,6 +138,8 @@ hardware_interface::return_type DiffHardwareInterface::read()
     } else {
       wheels_[itr].encoder_pos = wheels_[itr].fake_motor.get()->getPosDegree();
       wheels_[itr].encoder_vel = wheels_[itr].fake_motor.get()->getVelRPM();
+
+      wheels_[itr].fake_motor.get()->simStep(0.0165);
     }
   }
 
