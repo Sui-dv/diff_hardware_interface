@@ -28,6 +28,7 @@ return_type UnivHardwareInterface::configure(const hardware_interface::HardwareI
   
   // Configure wheel params
   wheel_count_ = stoi(info_.hardware_parameters["wheel_count"]);
+  RCLCPP_INFO(logger_, "%i", wheel_count_);
   for (int itr = 1; itr <= wheel_count_; itr++){
     WheelConfig configurator;
 
@@ -86,7 +87,7 @@ std::vector<hardware_interface::CommandInterface> UnivHardwareInterface::export_
   std::vector<hardware_interface::CommandInterface> command_interfaces;
 
   for (int itr = 0; itr < wheel_count_; itr++){
-    command_interfaces.emplace_back(hardware_interface::CommandInterface(wheels_[itr].wheel_name, hardware_interface::HW_IF_VELOCITY, &wheels_[itr].goal));
+    command_interfaces.emplace_back(hardware_interface::CommandInterface(wheels_[itr].wheel_name, wheels_[itr].mode ? hardware_interface::HW_IF_POSITION : hardware_interface::HW_IF_VELOCITY, &wheels_[itr].goal));
   }
 
   return command_interfaces;
