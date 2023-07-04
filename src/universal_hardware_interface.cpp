@@ -34,10 +34,18 @@ return_type UnivHardwareInterface::configure(const hardware_interface::HardwareI
 
     configurator.wheel_name    = info_.hardware_parameters["wheel_name_" + to_string(itr)];
     configurator.wheel_id      = stoi(info_.hardware_parameters["wheel_id_" + to_string(itr)]);
-    configurator.mode          = stoi(info_.hardware_parameters["wheel_mode_" + to_string(itr)]);
     configurator.real_hardware = stoi(info_.hardware_parameters["real_hardware_" + to_string(itr)]);
     configurator.fake_motor    = make_shared<FakeDynamixelHandle>();
     configurator.real_motor    = make_shared<DynamixelHandle>();
+
+    if (info_.hardware_parameters["wheel_mode_" + to_string(itr)] == "position"){
+      configurator.mode = 1;
+    } else if (info_.hardware_parameters["wheel_mode_" + to_string(itr)] == "velocity"){
+      configurator.mode = 0;
+    } else {
+      RCLCPP_ERROR(logger_, "Invalid wheel mode, Wheel ID:[%i]", configurator.wheel_id);
+      return return_type::ERROR;
+    }
 
     wheels_.push_back(configurator);
   }
