@@ -46,9 +46,6 @@ private:
   vector<WheelConfig>     wheels_;
   uint16_t                wheel_count_;
 
-  string                  wheel_name_left_;
-  string                  wheel_name_right_;
-
   string                  device_name_;     // Serial port
   uint32_t                baudrate_;        // Baudrate
   uint16_t                update_rate_;     // Write rate

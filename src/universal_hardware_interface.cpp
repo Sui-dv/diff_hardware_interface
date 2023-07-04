@@ -28,7 +28,6 @@ return_type UnivHardwareInterface::configure(const hardware_interface::HardwareI
   
   // Configure wheel params
   wheel_count_ = stoi(info_.hardware_parameters["wheel_count"]);
-  RCLCPP_INFO(logger_, "%i", wheel_count_);
   for (int itr = 1; itr <= wheel_count_; itr++){
     WheelConfig configurator;
 
@@ -46,6 +45,9 @@ return_type UnivHardwareInterface::configure(const hardware_interface::HardwareI
       RCLCPP_ERROR(logger_, "Invalid wheel mode, Wheel ID:[%i]", configurator.wheel_id);
       return return_type::ERROR;
     }
+
+    configurator.pos_multiplier  = stod(info_.hardware_parameters["pos_multiplier_" + to_string(itr)]);
+    configurator.vel_multiplier  = stod(info_.hardware_parameters["vel_multiplier_" + to_string(itr)]);
 
     wheels_.push_back(configurator);
   }
@@ -158,15 +160,15 @@ hardware_interface::return_type UnivHardwareInterface::write()
   for (auto itr : wheels_){
     if (itr.real_hardware){
       if (itr.mode){
-        itr.real_motor.get()->setPosDegree(itr.goal);
+        itr.real_motor.get()->setPosDegree(itr.goal * itr.pos_multiplier);
       } else {
-        itr.real_motor.get()->setVelRPM(itr.goal);
+        itr.real_motor.get()->setVelRPM(itr.goal * itr.vel_multiplier);
       }
     } else {
       if (itr.mode){
-        itr.fake_motor.get()->setPosDegree(itr.goal);
+        itr.fake_motor.get()->setPosDegree(itr.goal * itr.pos_multiplier);
       } else {
-        itr.fake_motor.get()->setVelRPM(itr.goal);
+        itr.fake_motor.get()->setVelRPM(itr.goal * itr.vel_multiplier);
       }
     }
   }
