@@ -142,13 +142,13 @@ hardware_interface::return_type UnivHardwareInterface::read()
 {
   for (int itr = 0; itr < wheel_count_; itr++){
     if (wheels_[itr].real_hardware){
-      wheels_[itr].encoder_pos = wheels_[itr].real_motor.get()->getPosDegree();
-      wheels_[itr].encoder_vel = wheels_[itr].real_motor.get()->getVelRPM();
+      wheels_[itr].encoder_pos = wheels_[itr].real_motor.get()->getPosDegree() * 2*3.14 / 360;     // -> [rad]
+      wheels_[itr].encoder_vel = wheels_[itr].real_motor.get()->getVelRPM();                       // -> [rpm]
     } else {
-      wheels_[itr].encoder_pos = wheels_[itr].fake_motor.get()->getPosDegree();
+      wheels_[itr].encoder_pos = wheels_[itr].fake_motor.get()->getPosDegree() * 2*3.14 / 360;
       wheels_[itr].encoder_vel = wheels_[itr].fake_motor.get()->getVelRPM();
 
-      wheels_[itr].fake_motor.get()->simStep(0.0165);
+      wheels_[itr].fake_motor.get()->simStep(1);
     }
   }
 
@@ -160,13 +160,13 @@ hardware_interface::return_type UnivHardwareInterface::write()
   for (auto itr : wheels_){
     if (itr.real_hardware){
       if (itr.mode){
-        itr.real_motor.get()->setPosDegree(itr.goal * itr.pos_multiplier);
+        itr.real_motor.get()->setPosDegree(itr.goal * itr.pos_multiplier* 360 /2/3.14);
       } else {
         itr.real_motor.get()->setVelRPM(itr.goal * itr.vel_multiplier);
       }
     } else {
       if (itr.mode){
-        itr.fake_motor.get()->setPosDegree(itr.goal * itr.pos_multiplier);
+        itr.fake_motor.get()->setPosDegree(itr.goal * itr.pos_multiplier * 360 /2/3.14);
       } else {
         itr.fake_motor.get()->setVelRPM(itr.goal * itr.vel_multiplier);
       }
