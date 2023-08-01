@@ -142,10 +142,12 @@ hardware_interface::return_type UnivHardwareInterface::read()
 {
   for (int itr = 0; itr < wheel_count_; itr++){
     if (wheels_[itr].real_hardware){
-      wheels_[itr].encoder_pos = wheels_[itr].real_motor.get()->getPosDegree() * 2*3.14 / 360;     // -> [rad]
+      // wheels_[itr].encoder_pos = wheels_[itr].real_motor.get()->getPosDegree() * 2*3.14 / 360;     // -> [rad]
+      wheels_[itr].encoder_pos = wheels_[itr].real_motor.get()->getPosDegree();                    // -> [degree]
       wheels_[itr].encoder_vel = wheels_[itr].real_motor.get()->getVelRPM();                       // -> [rpm]
     } else {
-      wheels_[itr].encoder_pos = wheels_[itr].fake_motor.get()->getPosDegree() * 2*3.14 / 360;
+      // wheels_[itr].encoder_pos = wheels_[itr].fake_motor.get()->getPosDegree() * 2*3.14 / 360;
+      wheels_[itr].encoder_pos = wheels_[itr].fake_motor.get()->getPosDegree();                    // -> [degree]
       wheels_[itr].encoder_vel = wheels_[itr].fake_motor.get()->getVelRPM();
 
       wheels_[itr].fake_motor.get()->simStep(1);
