@@ -1,5 +1,5 @@
-#ifndef UNIVERSAL_HARDWARE_INTERFACE_H
-#define UNIVERSAL_HARDWARE_INTERFACE_H
+#ifndef DYNAMIXEL_HARDWARE_INTERFACE_H
+#define DYNAMIXEL_HARDWARE_INTERFACE_H
 
 #include <string>
 #include <map>
@@ -19,14 +19,14 @@
 using hardware_interface::return_type;
 using namespace std;
 
-class UnivHardwareInterface : public hardware_interface::BaseInterface<hardware_interface::SystemInterface>
+class DyxelHardwareInterface : public hardware_interface::BaseInterface<hardware_interface::SystemInterface>
 {
 
 
 public:
-  UnivHardwareInterface();
+  DyxelHardwareInterface();
 
-  ~UnivHardwareInterface();
+  ~DyxelHardwareInterface();
 
   return_type configure(const hardware_interface::HardwareInfo & info) override;
 
@@ -54,4 +54,4 @@ private:
 };
 
 
-#endif // UNIVERSAL_HARDWARE_INTERFACE_H_
+#endif // DYNAMIXEL_HARDWARE_INTERFACE_H_

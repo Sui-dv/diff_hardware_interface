@@ -1,12 +1,12 @@
-#include "universal_hardware_interface/universal_hardware_interface.h"
+#include "dynamixel_hardware_interface/dynamixel_hardware_interface.h"
 
 
-UnivHardwareInterface::UnivHardwareInterface()
-    : logger_(rclcpp::get_logger("UnivHardwareInterface"))
+DyxelHardwareInterface::DyxelHardwareInterface()
+    : logger_(rclcpp::get_logger("DyxelHardwareInterface"))
 {
 }
 
-UnivHardwareInterface::~UnivHardwareInterface()
+DyxelHardwareInterface::~DyxelHardwareInterface()
 {
   // Deactivate all dynamixels
   for (auto itr : wheels_){
@@ -18,7 +18,7 @@ UnivHardwareInterface::~UnivHardwareInterface()
   }
 }
 
-return_type UnivHardwareInterface::configure(const hardware_interface::HardwareInfo & info)
+return_type DyxelHardwareInterface::configure(const hardware_interface::HardwareInfo & info)
 {
   if (configure_default(info) != return_type::OK) {
     return return_type::ERROR;
@@ -78,7 +78,7 @@ return_type UnivHardwareInterface::configure(const hardware_interface::HardwareI
   return return_type::OK;
 }
 
-std::vector<hardware_interface::StateInterface> UnivHardwareInterface::export_state_interfaces()
+std::vector<hardware_interface::StateInterface> DyxelHardwareInterface::export_state_interfaces()
 {
 
   std::vector<hardware_interface::StateInterface> state_interfaces;
@@ -91,7 +91,7 @@ std::vector<hardware_interface::StateInterface> UnivHardwareInterface::export_st
   return state_interfaces;
 }
 
-std::vector<hardware_interface::CommandInterface> UnivHardwareInterface::export_command_interfaces()
+std::vector<hardware_interface::CommandInterface> DyxelHardwareInterface::export_command_interfaces()
 {
 
   std::vector<hardware_interface::CommandInterface> command_interfaces;
@@ -104,7 +104,7 @@ std::vector<hardware_interface::CommandInterface> UnivHardwareInterface::export_
 }
 
 
-return_type UnivHardwareInterface::start()
+return_type DyxelHardwareInterface::start()
 {
   RCLCPP_INFO(logger_, "Starting Controller...");
 
@@ -121,7 +121,7 @@ return_type UnivHardwareInterface::start()
   return return_type::OK;
 }
 
-return_type UnivHardwareInterface::stop()
+return_type DyxelHardwareInterface::stop()
 {
   RCLCPP_INFO(logger_, "Stopping Controller...");
 
@@ -138,7 +138,7 @@ return_type UnivHardwareInterface::stop()
   return return_type::OK;
 }
 
-hardware_interface::return_type UnivHardwareInterface::read()
+hardware_interface::return_type DyxelHardwareInterface::read()
 {
   for (int itr = 0; itr < wheel_count_; itr++){
     if (wheels_[itr].real_hardware){
@@ -157,7 +157,7 @@ hardware_interface::return_type UnivHardwareInterface::read()
   return return_type::OK;
 }
 
-hardware_interface::return_type UnivHardwareInterface::write()
+hardware_interface::return_type DyxelHardwareInterface::write()
 {
   for (auto itr : wheels_){
     if (itr.real_hardware){
@@ -181,6 +181,6 @@ hardware_interface::return_type UnivHardwareInterface::write()
 #include "pluginlib/class_list_macros.hpp"
 
 PLUGINLIB_EXPORT_CLASS(
-  UnivHardwareInterface,
+  DyxelHardwareInterface,
   hardware_interface::SystemInterface
 )

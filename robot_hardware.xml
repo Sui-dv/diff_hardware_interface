@@ -1,9 +1,9 @@
-<library path="universal_hardware_interface">
-  <class name="universal_hardware_interface/UnivHardwareInterface"
-         type="UnivHardwareInterface"
+<library path="dynamixel_hardware_interface">
+  <class name="dynamixel_hardware_interface/DyxelHardwareInterface"
+         type="DyxelHardwareInterface"
          base_class_type="hardware_interface::SystemInterface">
     <description>
-      Universal Hardware Interface for general use of dynamixel motor. 
+      Dynamixel Hardware Interface for general use of dynamixel motor. 
       Using dynamixel_wrapper package for abstraction of DynamixelSDK.
     </description>
   </class>

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>universal_hardware_interface</name>
+  <name>dynamixel_hardware_interface</name>
   <version>1.0.0</version>
   <description>Provides an interface between ROS2_control and dynamixel_wrapper.</description>
   <maintainer email="firstkafaizpangestu@gmail.com">Faiz Pangestu</maintainer>
